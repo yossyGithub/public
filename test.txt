@@ -15,7 +15,8 @@ begin
 	  　サンプルは文字型のパラメータですので、少し 「'」 が煩雑になっています。
 	*/
 	perform public.dblink_exec(conn,
-						   'insert into testtable values(1,''' || logtext || ''',1)');
+						   'insert into log_table(logtext, create_date) 
+							               values(''' || logtext || ''', now())');
 	raise info 'dblink_exec_insert';
 
 	perform public.dblink_disconnect(conn);
