@@ -1,1 +1,27 @@
-Test
+create or replace procedure public.sp_logwriter(
+	in logtext text)
+language 'plpgsql'
+as $body$
+declare
+	conn char varying(8) := 'dblink01';
+	conn_str char varying(128) := 'host=localhost port=5432 dbname=testdb user=postgres password=postgres';
+begin
+	
+	perform public.dblink_connect(conn, conn_str);
+	raise info 'dblinkconnect';
+
+	/* dblink_execの第2パラメータはSQLの 文字列 になります。 
+	　　従ってパラメータで受け取る各種値は || での文字列結合が必要になってきます。
+	  　サンプルは文字型のパラメータですので、少し 「'」 が煩雑になっています。
+	*/
+	perform public.dblink_exec(conn,
+						   'insert into testtable values(1,''' || logtext || ''',1)');
+	raise info 'dblink_exec_insert';
+
+	perform public.dblink_disconnect(conn);
+	raise info 'dblinkdisconnect';
+
+end;
+$body$;
+alter procedure public.sp_logwriter(text)
+    owner to postgres;
